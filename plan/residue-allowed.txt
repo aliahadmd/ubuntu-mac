@@ -1,0 +1,31 @@
+# Frozen cross-version host-contract strings that deliberately keep the
+# original names after the Try Ubuntu rename (plan11). Everything else must
+# be rename-clean; guest/tests/verify.py enforces this list.
+# - Virtio serial port names (host chardevs <-> guest bridges):
+dev.tryomarchy.audio
+dev.tryomarchy.clipboard
+dev.tryomarchy.camera
+# - One-time legacy-VM recovery share and completion marker:
+try-omarchy-boot-export
+try-omarchy-boot-export-v1
+# - Persistent-storage markers and metadata kinds (existing VMs on disk):
+.omarchy-qemu-storage
+omarchy-qemu-storage-root-v1
+omarchy-qemu-persistent-disk
+omarchy-qemu-boot-kit
+# - Default workspace directory (documented compatibility; not migrated):
+Application Support/Try Omarchy
+static let workspaceDirectoryName = "Try Omarchy"
+appendingPathComponent("Try Omarchy", isDirectory: true)
+# - Vendored QEMU 9p patch option names (upstreamable API names):
+guest_owner_uid
+guest_owner_gid
+# - Launcher-owned kernel tokens of the Omarchy generation: the storage
+#   library must keep rejecting them in boot kits of every generation:
+omarchy.qemu_virgl=
+omarchy.shared_folder_name=
+tryomarchy.ssh_access=
+tryomarchy.export_boot=
+# - Apple notarytool keychain profile name (a credential identifier, not
+#   branding); renaming it would break make release on the release machine:
+try-ubuntu-ali

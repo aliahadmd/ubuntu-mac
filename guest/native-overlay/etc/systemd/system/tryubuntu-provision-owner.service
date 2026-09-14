@@ -1,0 +1,18 @@
+[Unit]
+Description=Try Ubuntu first-boot owner provisioning
+After=systemd-user-sessions.service
+Before=display-manager.service gdm.service
+ConditionPathExists=!/var/lib/tryubuntu/provisioning/done
+
+[Service]
+Type=oneshot
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+ExecStart=/usr/local/bin/tryubuntu-provision-owner
+
+[Install]
+WantedBy=multi-user.target

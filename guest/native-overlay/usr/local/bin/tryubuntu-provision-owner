@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# First-boot owner provisioning for the Ubuntu factory image. The factory
+# ships with no user; this console form runs once before the display manager
+# and creates the account the Mac integrations assume (uid 1000, first
+# provisioned user).
+#
+# Completion is derived from the system state, not only from the marker: a
+# uid-1000 account means provisioning already happened, whatever happened to
+# /var/lib/tryubuntu/provisioning. The marker is a cache; the account is the
+# truth. Every step is logged to /var/log/tryubuntu-provision.log so a failed
+# run is diagnosable instead of silently re-arming the form.
+
+set -uo pipefail
+
+state_directory=/var/lib/tryubuntu/provisioning
+marker=$state_directory/done
+log=/var/log/tryubuntu-provision.log
+exec >>"$log" 2>&1 || true
+echo "=== provisioning start $(date -u +%FT%TZ) ==="
+
+fail() {
+  echo "tryubuntu-provision-owner: $*" >&2
+  exit 1
+}
+
+mkdir -p "$state_directory" || fail "cannot create $state_directory"
+
+# Fast path: this boot is already provisioned.
+[[ -f $marker ]] && exit 0
+
+# Self-heal: an account already exists (the marker write was lost to a
+# failure or power cut in a previous run). Record it and skip the form
+# instead of asking the user to create an account that is already there.
+existing=$(getent passwd 1000 | cut -d: -f1)
+if [[ -n $existing ]]; then
+  echo "account $existing already exists; marking provisioning complete"
+  printf '%s\n' "$existing" >"$state_directory/owner"
+  : >"$marker"
+  exit 0
+fi
+
+[[ -x /usr/bin/whiptail ]] || fail "whiptail is required for provisioning"
+[[ -x /usr/sbin/useradd ]] || fail "useradd is required for provisioning"
+
+while true; do
+  form=$(whiptail --title "Welcome to Try Ubuntu" --backtitle "Account setup" \
+    --inputbox "Create your Linux account.\n\nUsername (lowercase letters, digits, dashes):" 12 66 3>&1 1>&2 2>&3) \
+    || { clear; echo "Provisioning cancelled; reboot to try again."; exit 1; }
+  username=$(printf '%s' "$form" | tr -d '[:space:]')
+  if ! [[ $username =~ ^[a-z_][a-z0-9_-]{0,31}$ ]]; then
+    whiptail --msgbox "The username '$username' is not valid." 8 60 3>&1 1>&2 2>&3
+    continue
+  fi
+  if getent passwd "$username" >/dev/null; then
+    whiptail --msgbox "The username '$username' already exists." 8 60 3>&1 1>&2 2>&3
+    continue
+  fi
+
+  form=$(whiptail --title "Welcome to Try Ubuntu" --backtitle "Account setup" \
+    --passwordbox "Password for $username:" 10 66 3>&1 1>&2 2>&3) \
+    || { clear; echo "Provisioning cancelled; reboot to try again."; exit 1; }
+  password=$form
+  form=$(whiptail --title "Welcome to Try Ubuntu" --backtitle "Account setup" \
+    --passwordbox "Confirm the password:" 10 66 3>&1 1>&2 2>&3) \
+    || { clear; echo "Provisioning cancelled; reboot to try again."; exit 1; }
+  if [[ $password != "$form" ]]; then
+    whiptail --msgbox "The passwords do not match." 8 60 3>&1 1>&2 2>&3
+    continue
+  fi
+  [[ -n $password ]] || { whiptail --msgbox "The password must not be empty." 8 60 3>&1 1>&2 2>&3; continue; }
+  break
+done
+clear
+
+useradd --create-home --shell /bin/bash --uid 1000 "$username" \
+  || fail "could not create the account $username"
+
+# The account now exists in the system's own state: completion is recorded
+# immediately, before the remaining cosmetic steps. A failure below must
+# never re-arm the form for an account that already exists.
+printf '%s\n' "$username" >"$state_directory/owner"
+: >"$marker"
+echo "account $username created; completing setup"
+
+printf '%s:%s\n' "$username" "$password" | chpasswd || echo "warning: chpasswd failed" >&2
+usermod -aG sudo "$username" 2>/dev/null || echo "warning: could not add sudo group" >&2
+for group in audio video input users; do
+  getent group "$group" >/dev/null && usermod -aG "$group" "$username" 2>/dev/null || true
+done
+
+echo "Account $username created."

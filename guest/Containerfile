@@ -1,0 +1,19 @@
+# Ubuntu 26.04.1 LTS (resolute) arm64 factory builder.
+# The staged guest rootfs is debootstrapped fresh at build time by
+# guest/build.sh into the persistent work volume; this image only provides
+# the deterministic build tooling. See plan/contract.md.
+FROM docker.io/library/ubuntu:26.04
+
+ARG TARGETARCH
+RUN test "$TARGETARCH" = arm64
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      debootstrap e2fsprogs zstd python3 ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# The bootstrap mirror pair is primary-then-fallback by policy
+# (plan/contract.md section 4); the staged guest root records both so apt can
+# fall back per file at build and run time.
+WORKDIR /workspace
+ENTRYPOINT ["/workspace/guest/build.sh"]

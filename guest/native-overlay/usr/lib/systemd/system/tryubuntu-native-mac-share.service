@@ -1,0 +1,13 @@
+[Unit]
+Description=Mount the Mac folder shared by Try Ubuntu
+After=local-fs.target systemd-modules-load.service
+Before=display-manager.service gdm.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/tryubuntu-native-mac-share --mount
+ExecStop=/usr/local/bin/tryubuntu-native-mac-share --unmount
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,41 @@
+# Try Ubuntu factory package set.
+# Reviewed like the previous Arch package list: this file is the requested
+# transaction; the built dpkg manifest records the resolved closure.
+
+# Kernel and matching headers (v4l2loopback DKMS builds against them).
+# The leading ! installs without recommends so the kernel never pulls
+# grub-efi-arm64 or flash-kernel: the factory image has no partition table
+# and is direct-booted, so no bootloader may ship. (Device firmware still
+# arrives as a hard Depends of linux-modules and is accepted.)
+!linux-image-generic
+!linux-headers-generic
+
+# Initramfs tooling
+initramfs-tools
+
+# Base system
+systemd
+dbus
+locales
+sudo
+network-manager
+
+# Guest integration dependencies
+python3
+wl-clipboard
+pipewire
+pipewire-pulse
+wireplumber
+v4l2loopback-dkms
+
+# Vendor sshd unit for the boot-scoped ssh-access generator
+openssh-server
+
+# First-boot provisioning UI
+whiptail
+
+# Ubuntu desktop (GNOME on Wayland). The meta pulls gdm3, gnome-shell, and
+# NetworkManager integration; snapd arrives with firefox and seeds on first
+# boot over the VM's NAT.
+ubuntu-desktop-minimal
+gnome-terminal

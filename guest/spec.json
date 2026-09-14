@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 2,
+  "image": {
+    "architecture": "aarch64",
+    "filesystem": "ext4",
+    "filesystemLabel": "tryubuntu",
+    "filesystemUuid": "e4b1a7c2-9d3f-4a58-b6e1-2c7d5f0a9b31",
+    "sizeMiB": 6144,
+    "sourceDateEpoch": 1788652800
+  },
+  "guest": {
+    "profile": "factory",
+    "hostname": "ubuntu-factory",
+    "username": null,
+    "uid": null,
+    "defaultTheme": null,
+    "virtualDisplay": {
+      "width": 1600,
+      "height": 900,
+      "refreshHz": 60,
+      "scale": 1
+    }
+  },
+  "distribution": {
+    "name": "Ubuntu",
+    "release": "26.04.1 LTS",
+    "suite": "resolute",
+    "architecture": "arm64",
+    "debootstrapVariant": "minbase",
+    "primaryMirror": "http://ports.ubuntu.com/ubuntu-ports/",
+    "fallbackMirror": "https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports",
+    "kernelMeta": "linux-image-generic",
+    "kernelMetaVersion": "7.0.0-31.31",
+    "verifiedAt": "2026-09-06",
+    "license": "aggregate of packaged components; see dpkg manifest",
+    "corePackages": {
+      "gdm3": "50.1-0ubuntu0.1",
+      "gnome-shell": "50.1-0ubuntu1.2",
+      "initramfs-tools": "0.151ubuntu1",
+      "linux-image-generic": "7.0.0-31.31",
+      "network-manager": "1.54.3-2ubuntu3",
+      "pipewire": "1.6.2-1ubuntu1.1",
+      "v4l2loopback-dkms": "0.15.3-1ubuntu2",
+      "wireplumber": "0.5.13-1ubuntu1",
+      "wl-clipboard": "2.2.1-2build1"
+    }
+  },
+  "inputs": {
+    "packages": "packages.ubuntu.txt"
+  },
+  "authenticity": {
+    "requiredPaths": [
+      "usr/lib/systemd/system-generators/tryubuntu-ssh-access",
+      "usr/local/bin/tryubuntu-native-audio-bridge",
+      "usr/local/bin/tryubuntu-native-camera-bridge",
+      "usr/local/bin/tryubuntu-native-clipboard-bridge",
+      "usr/local/bin/tryubuntu-native-mac-share",
+      "usr/local/bin/tryubuntu-provision-owner",
+      "usr/share/initramfs-tools/scripts/local-bottom/tryubuntu-boot-export",
+      "usr/share/tryubuntu/build-spec.json",
+      "usr/share/tryubuntu/dpkg-manifest.txt"
+    ],
+    "postBuildUserInstallers": []
+  },
+  "runtime": {
+    "kernel": "vmlinuz-linux",
+    "initramfs": "initramfs-linux.img",
+    "disk": "rootfs.ext4",
+    "compressedDisk": "rootfs.ext4.zst",
+    "kernelCommandLine": "root=/dev/vda rw rootwait console=tty0 console=hvc0 loglevel=4 systemd.show_status=false rd.systemd.show_status=false mitigations=off nowatchdog",
+    "minimumMemoryMiB": 2048,
+    "recommendedMemoryMiB": 8192,
+    "minimumCpuCount": 4,
+    "virtualMachineMonitor": "qemu-system-aarch64",
+    "hypervisor": "hvf",
+    "boot": {
+      "abi": "qemu-arm64-uefi-direct-v1",
+      "kernelImageFormat": "pe32plus-efi-stub",
+      "firmware": {
+        "code": "share/edk2-aarch64-code.fd",
+        "varsTemplate": "share/edk2-arm-vars.fd",
+        "mode": "pflash",
+        "varsPolicy": "ephemeral-per-run"
+      }
+    },
+    "graphics": {
+      "device": "virtio-gpu-gl-pci",
+      "display": "cocoa",
+      "guestRenderer": "virgl",
+      "hostRenderer": "angle-metal"
+    },
+    "network": {
+      "device": "virtio-net-pci",
+      "backend": "slirp",
+      "mode": "user",
+      "sshAccess": {
+        "activation": {
+          "guestPort": 22,
+          "kernelToken": "tryubuntu.ssh_access=1",
+          "protocol": "tcp",
+          "scope": "boot",
+          "service": "sshd.service"
+        },
+        "preset": {
+          "guestPort": 22,
+          "hostAddress": "127.0.0.1",
+          "hostPort": 2222,
+          "protocol": "tcp"
+        }
+      }
+    },
+    "audio": {
+      "controller": "intel-hda",
+      "codec": "hda-micro",
+      "backend": "sdl",
+      "duplex": true
+    },
+    "camera": {
+      "activation": "on-demand",
+      "device": "virtserialport",
+      "framesPerSecond": 30,
+      "guestDevice": "/dev/video42",
+      "height": 720,
+      "pixelFormat": "NV12",
+      "port": "dev.tryomarchy.camera",
+      "protocolVersion": 1,
+      "width": 1280
+    },
+    "storage": {
+      "device": "virtio-blk-pci",
+      "format": "raw",
+      "mode": "ephemeral",
+      "initialization": "apfs-clone",
+      "fallback": "full-copy",
+      "expandedSizeMiB": 102400
+    },
+    "clipboard": {
+      "device": "virtserialport",
+      "port": "dev.tryomarchy.clipboard",
+      "formats": [
+        "text/plain;charset=utf-8",
+        "image/png"
+      ]
+    },
+    "sharedFolder": {
+      "device": "virtio-9p-pci",
+      "fsdriver": "local",
+      "securityModel": "none",
+      "mountTag": "mac",
+      "guestOwnerUid": 1000,
+      "guestOwnerGid": 1000,
+      "guestMountPoint": "/mnt/mac",
+      "guestLinkNameParameter": "tryubuntu.shared_folder_name"
+    },
+    "devices": [
+      "virtio-blk-pci",
+      "virtio-gpu-gl-pci",
+      "virtio-keyboard-pci",
+      "virtio-tablet-pci",
+      "virtio-net-pci",
+      "virtio-serial-pci",
+      "virtconsole",
+      "virtserialport",
+      "virtio-rng-pci",
+      "virtio-balloon-pci",
+      "intel-hda",
+      "hda-micro",
+      "virtio-9p-pci"
+    ]
+  }
+}
