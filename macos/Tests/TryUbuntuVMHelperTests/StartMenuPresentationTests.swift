@@ -9,7 +9,7 @@ struct StartMenuPresentationTests {
         #expect(detail.contains("storage or boot format"))
         #expect(detail.contains("multiple saved VMs"))
         #expect(detail.contains("permanently erases"))
-        #expect(!detail.contains("different Try Ubuntu build"))
+        #expect(!detail.contains("different Ubuntu Mac build"))
     }
 
     @Test("boot recovery notice promises preservation and no automatic upgrade")

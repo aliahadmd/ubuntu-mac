@@ -42,7 +42,7 @@ if (($#)); then
 fi
 
 repo_dir=$(cd "$macos_dir/.." && pwd -P)
-app="$repo_dir/dist/app.noindex/Try Ubuntu.app"
+app="$repo_dir/dist/app.noindex/Ubuntu Mac.app"
 helper="$app/Contents/MacOS/tryubuntu-vm-helper"
 info_plist="$app/Contents/Info.plist"
 [[ -d $app && ! -L $app ]] || {

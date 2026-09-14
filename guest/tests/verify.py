@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Contract checks for the Try Ubuntu factory build.
+"""Contract checks for the Ubuntu Mac factory build.
 
 This suite pins the Ubuntu builder pipeline (plan2+), the runtime contract the
 Mac launcher validates, and the guest integration surface. It replaces the

@@ -1,6 +1,6 @@
 # Third-party notices
 
-Try Ubuntu builds and redistributes third-party components under their own
+Ubuntu Mac builds and redistributes third-party components under their own
 licenses. The repository's MIT license applies only to this project's original
 code.
 

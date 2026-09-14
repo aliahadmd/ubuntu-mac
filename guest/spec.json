@@ -67,7 +67,7 @@
     "initramfs": "initramfs-linux.img",
     "disk": "rootfs.ext4",
     "compressedDisk": "rootfs.ext4.zst",
-    "kernelCommandLine": "root=/dev/vda rw rootwait console=tty0 console=hvc0 loglevel=4 systemd.show_status=false rd.systemd.show_status=false mitigations=off nowatchdog",
+    "kernelCommandLine": "root=/dev/vda rw rootwait console=tty0 console=hvc0 loglevel=4 mitigations=off nowatchdog",
     "minimumMemoryMiB": 2048,
     "recommendedMemoryMiB": 8192,
     "minimumCpuCount": 4,

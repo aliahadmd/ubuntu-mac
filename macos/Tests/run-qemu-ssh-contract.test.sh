@@ -46,7 +46,7 @@ case "$test_root" in
 esac
 trap '/bin/rm -rf "$test_root"' EXIT HUP INT TERM
 
-app="$test_root/Try Ubuntu.app"
+app="$test_root/Ubuntu Mac.app"
 contents="$app/Contents"
 resources="$contents/Resources"
 shim_dir="$test_root/bin"
@@ -76,7 +76,7 @@ exit 0
 SH
 chmod 755 "$contents/MacOS/tryubuntu-vm-helper"
 
-cat >"$resources/runtime/bin/Try Ubuntu" <<'SH'
+cat >"$resources/runtime/bin/Ubuntu Mac" <<'SH'
 #!/bin/bash
 # Identity markers validated by the production launcher:
 # TryUbuntu.icns
@@ -117,7 +117,7 @@ import sys
 import time
 
 arguments = sys.argv[1:]
-is_recovery = "Try Ubuntu Boot Recovery" in arguments
+is_recovery = "Ubuntu Mac Boot Recovery" in arguments
 log_variable = "FAKE_QEMU_RECOVERY_LOG" if is_recovery else "FAKE_QEMU_LOG"
 Path(os.environ[log_variable]).write_text("\n".join(arguments) + "\n")
 
@@ -168,7 +168,7 @@ PY
     ;;
 esac
 SH
-chmod 755 "$resources/runtime/bin/Try Ubuntu"
+chmod 755 "$resources/runtime/bin/Ubuntu Mac"
 
 cat >"$resources/scripts/qemu-persistent-storage.sh" <<'SH'
 #!/bin/bash

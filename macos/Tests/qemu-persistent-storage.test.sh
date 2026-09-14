@@ -757,8 +757,9 @@ assert test -d "$newline_stage"
 assert test -f "$newline_stage/$newline_entry"
 qemu_persistent_storage_release_lock
 
-# The production default is branded for Try Ubuntu and never recreates the
-# former Ubuntu-only Application Support path.
+# The production default is branded for Ubuntu Mac: the legacy Application
+# Support folder (see plan/residue-allowed.txt) is renamed once — nothing
+# inside is lost — and the workspace is never re-created under that name.
 saved_state_root=$TRYUBUNTU_QEMU_GPU_STATE_ROOT
 saved_home=$HOME
 saved_multi_disk=$TRYUBUNTU_QEMU_GPU_DEVELOPMENT_MULTI_DISK
@@ -782,8 +783,9 @@ qemu_persistent_storage_select \
   persistent "$identity_a" "$source_disk" "$source_sha" "$source_bytes" ''
 assert_eq \
   "$QEMU_SELECTED_DISK" \
-  "$default_home/Library/Application Support/Try Omarchy/VM/v1/disks/current/rootfs.ext4"
-assert test -f "$old_branded_root/sentinel"
+  "$default_home/Library/Application Support/Ubuntu Mac/VM/v1/disks/current/rootfs.ext4"
+assert test -f "$default_home/Library/Application Support/Ubuntu Mac/QEMU/v1/sentinel"
+assert test ! -e "$old_branded_root"
 assert test ! -e "$default_home/Library/Application Support/Ubuntu"
 qemu_persistent_storage_release_lock
 export HOME=$saved_home

@@ -23,12 +23,12 @@ struct ApplicationPresentationTests {
 
         ApplicationPresentation.installMainMenu(
             in: application,
-            applicationName: "Try Ubuntu"
+            applicationName: "Ubuntu Mac"
         )
 
         let appMenu = try #require(application.mainMenu?.items.first?.submenu)
         let quit = try #require(appMenu.items.first(where: {
-            $0.title == "Quit Try Ubuntu"
+            $0.title == "Quit Ubuntu Mac"
         }))
         #expect(quit.keyEquivalent == "q")
         #expect(quit.action == #selector(NSApplication.terminate(_:)))

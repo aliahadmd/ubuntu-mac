@@ -48,7 +48,7 @@ resources_dir=$(cd "$script_dir/.." && pwd -P)
 contents_dir=$(cd "$resources_dir/.." && pwd -P)
 app_bundle=$(cd "$contents_dir/.." && pwd -P)
 guest_input=${1:-"$resources_dir/guest"}
-qemu_bin="$resources_dir/runtime/bin/Try Ubuntu"
+qemu_bin="$resources_dir/runtime/bin/Ubuntu Mac"
 uefi_firmware_code="$resources_dir/runtime/share/edk2-aarch64-code.fd"
 uefi_firmware_vars_template="$resources_dir/runtime/share/edk2-arm-vars.fd"
 native_bridge="$contents_dir/MacOS/tryubuntu-vm-helper"
@@ -82,7 +82,7 @@ esac
 }
 file "$qemu_bin" | grep -q 'arm64' || fail "staged QEMU is not an ARM64 executable"
 LC_ALL=C grep -aFq 'TryUbuntu.icns' "$qemu_bin" || {
-  fail "staged QEMU lacks the Try Ubuntu macOS identity; run make runtime"
+  fail "staged QEMU lacks the Ubuntu Mac macOS identity; run make runtime"
 }
 for marker in \
   TRYUBUNTU_SDL_AUDIO_CONTROL_DIRECTORY \
@@ -1002,7 +1002,7 @@ recover_persistent_boot_kit() {
     )
   fi
   "$qemu_bin" \
-    -name 'Try Ubuntu Boot Recovery' \
+    -name 'Ubuntu Mac Boot Recovery' \
     -machine "$qemu_machine" \
     -cpu 'host,pmu=off' \
     -smp '2,sockets=1,cores=2,threads=1' \
@@ -1235,7 +1235,7 @@ case ${TRYUBUNTU_QEMU_GPU_IMMERSIVE:-1} in
 esac
 
 qemu_args=(
-  -name 'Try Ubuntu'
+  -name 'Ubuntu Mac'
   -machine "$qemu_machine"
   # HVF does not provide a usable guest PMU on Apple Silicon. Do not advertise
   # one: Linux otherwise probes the dead device and prints a misleading failure.

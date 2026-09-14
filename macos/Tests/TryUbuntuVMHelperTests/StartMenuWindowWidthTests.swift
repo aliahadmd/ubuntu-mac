@@ -14,8 +14,8 @@ struct StartMenuWindowWidthTests {
         for invalidValue in [
             "try ubuntu",
             "TRY UBUNTU",
-            "Try Ubuntu ",
-            " Try Ubuntu",
+            "Ubuntu Mac ",
+            " Ubuntu Mac",
         ] {
             prompt.confirmationField.stringValue = invalidValue
             NotificationCenter.default.post(
@@ -25,7 +25,7 @@ struct StartMenuWindowWidthTests {
             #expect(!prompt.resetButton.isEnabled)
         }
 
-        prompt.confirmationField.stringValue = "Try Ubuntu"
+        prompt.confirmationField.stringValue = "Ubuntu Mac"
         NotificationCenter.default.post(
             name: NSControl.textDidChangeNotification,
             object: prompt.confirmationField

@@ -74,10 +74,11 @@ enum QEMUGPUStorageSpaceEstimate {
             for: .applicationSupportDirectory,
             in: .userDomainMask
         ).first else { return nil }
-        // Kept identical to the shell library's default workspace home and
-        // StorageLocationPolicy.workspaceDirectoryName.
+        // The shell library's default workspace home. The storage library
+        // migrates the legacy folder to this name at launch; both live on the
+        // same APFS volume, so free-space figures are identical either way.
         return applicationSupport
-            .appendingPathComponent("Try Omarchy", isDirectory: true)
+            .appendingPathComponent("Ubuntu Mac", isDirectory: true)
             .standardizedFileURL
     }
 
@@ -551,7 +552,7 @@ struct QEMUGPULaunchRequest: Equatable {
 }
 
 enum QEMUGPULauncherPath {
-    static let appName = "Try Ubuntu.app"
+    static let appName = "Ubuntu Mac.app"
     static let launcherName = "run-qemu-gpu.sh"
 
     static func resolve(bundleURL: URL) throws -> URL {
@@ -628,12 +629,12 @@ struct MicrophoneLaunchDecision: Equatable {
         case .denied:
             Self(
                 allowsLaunch: true,
-                warning: "Microphone access is denied. Audio playback will continue, but guest recording is unavailable. Enable Try Ubuntu in System Settings > Privacy & Security > Microphone, then relaunch."
+                warning: "Microphone access is denied. Audio playback will continue, but guest recording is unavailable. Enable Ubuntu Mac in System Settings > Privacy & Security > Microphone, then relaunch."
             )
         case .restricted:
             Self(
                 allowsLaunch: true,
-                warning: "Microphone access is restricted by macOS policy. Audio playback will continue, but guest recording is unavailable. Ask the Mac administrator to allow microphone access for Try Ubuntu."
+                warning: "Microphone access is restricted by macOS policy. Audio playback will continue, but guest recording is unavailable. Ask the Mac administrator to allow microphone access for Ubuntu Mac."
             )
         case .notDetermined:
             Self(
@@ -655,12 +656,12 @@ struct CameraLaunchDecision: Equatable {
         case .denied:
             Self(
                 allowsLaunch: true,
-                warning: "Camera access is denied. Ubuntu will continue without the Mac camera. Enable Try Ubuntu in System Settings > Privacy & Security > Camera, then relaunch."
+                warning: "Camera access is denied. Ubuntu will continue without the Mac camera. Enable Ubuntu Mac in System Settings > Privacy & Security > Camera, then relaunch."
             )
         case .restricted:
             Self(
                 allowsLaunch: true,
-                warning: "Camera access is restricted by macOS policy. Ubuntu will continue without the Mac camera. Ask the Mac administrator to allow camera access for Try Ubuntu."
+                warning: "Camera access is restricted by macOS policy. Ubuntu will continue without the Mac camera. Ask the Mac administrator to allow camera access for Ubuntu Mac."
             )
         case .notDetermined:
             Self(

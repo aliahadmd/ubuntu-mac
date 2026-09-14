@@ -403,11 +403,11 @@ def validate_runtime(root: Path, previous: dict[str, Any] | None) -> dict[str, A
 
 
 def validate_app(root: Path, previous: dict[str, Any] | None) -> dict[str, Any]:
-    app = root / "dist/app.noindex/Try Ubuntu.app"
+    app = root / "dist/app.noindex/Ubuntu Mac.app"
     required = [
         app / "Contents/MacOS/tryubuntu-vm-helper",
         app / "Contents/Resources/TryUbuntu.icns",
-        app / "Contents/Resources/runtime/bin/Try Ubuntu",
+        app / "Contents/Resources/runtime/bin/Ubuntu Mac",
         app / "Contents/Resources/guest/rootfs.ext4.zst",
         app / "Contents/Resources/guest/launch.plist",
     ]

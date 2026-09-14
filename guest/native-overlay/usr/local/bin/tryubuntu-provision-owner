@@ -44,7 +44,7 @@ fi
 [[ -x /usr/sbin/useradd ]] || fail "useradd is required for provisioning"
 
 while true; do
-  form=$(whiptail --title "Welcome to Try Ubuntu" --backtitle "Account setup" \
+  form=$(whiptail --title "Welcome to Ubuntu Mac" --backtitle "Account setup" \
     --inputbox "Create your Linux account.\n\nUsername (lowercase letters, digits, dashes):" 12 66 3>&1 1>&2 2>&3) \
     || { clear; echo "Provisioning cancelled; reboot to try again."; exit 1; }
   username=$(printf '%s' "$form" | tr -d '[:space:]')
@@ -57,11 +57,11 @@ while true; do
     continue
   fi
 
-  form=$(whiptail --title "Welcome to Try Ubuntu" --backtitle "Account setup" \
+  form=$(whiptail --title "Welcome to Ubuntu Mac" --backtitle "Account setup" \
     --passwordbox "Password for $username:" 10 66 3>&1 1>&2 2>&3) \
     || { clear; echo "Provisioning cancelled; reboot to try again."; exit 1; }
   password=$form
-  form=$(whiptail --title "Welcome to Try Ubuntu" --backtitle "Account setup" \
+  form=$(whiptail --title "Welcome to Ubuntu Mac" --backtitle "Account setup" \
     --passwordbox "Confirm the password:" 10 66 3>&1 1>&2 2>&3) \
     || { clear; echo "Provisioning cancelled; reboot to try again."; exit 1; }
   if [[ $password != "$form" ]]; then

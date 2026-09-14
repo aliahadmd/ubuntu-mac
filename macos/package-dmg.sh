@@ -84,7 +84,7 @@ ln -s /Applications "$staging/Applications"
 
 read_write_dmg="$work_dir/Ubuntu-rw.dmg"
 hdiutil create \
-  -volname "Try Ubuntu" \
+  -volname "Ubuntu Mac" \
   -srcfolder "$staging" \
   -fs APFS \
   -format UDRW \

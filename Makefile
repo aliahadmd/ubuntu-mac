@@ -3,8 +3,8 @@ SHELL := /bin/bash
 override ROOT := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 override DIST := $(ROOT)/dist
 override GUEST_DIST := $(DIST)/guest
-override APP := $(DIST)/app.noindex/Try Ubuntu.app
-override DMG := $(DIST)/TryUbuntu.dmg
+override APP := $(DIST)/app.noindex/Ubuntu Mac.app
+override DMG := $(DIST)/UbuntuMac.dmg
 override BUILD_CACHE := $(ROOT)/scripts/build-cache.py
 override BUILD_STATE := $(ROOT)/.build/state
 # Set these to your own Developer ID Application identity and a notarytool
@@ -21,7 +21,7 @@ FORCE ?= 0
 
 help:
 	@printf '%s\n' \
-	  'Try Ubuntu — native macOS build commands' \
+	  'Ubuntu Mac — native macOS build commands' \
 	  '' \
 	  '  make doctor         Check the local toolchain' \
 	  '  make test           Run native and guest contract tests' \
@@ -140,16 +140,16 @@ clean:
 	    [[ -z "$$volume" ]] || docker volume rm "$$volume" >/dev/null; \
 	  done < <(docker volume ls -q --filter label=dev.tryubuntu.role=guest-work); \
 	  docker image rm -f tryubuntu-guest-builder >/dev/null 2>&1 || true; \
-	  echo 'Removed Try Ubuntu Docker builder image and guest-work volumes.'; \
+	  echo 'Removed Ubuntu Mac Docker builder image and guest-work volumes.'; \
 	else \
 	  echo 'Docker is unavailable; skipped project Docker cache cleanup.' >&2; \
 	fi
 
 clean-all:
 	@[[ "$$(uname -s)" == Darwin ]] || { echo 'error: make clean-all requires macOS' >&2; exit 1; }
-	@pgrep -f 'tryubuntu-[q]emu|tryubuntu-[d]mg|Try Ubuntu[.]app/Contents/' >/dev/null 2>&1; status=$$?; \
+	@pgrep -f 'tryubuntu-[q]emu|tryubuntu-[d]mg|Ubuntu Mac[.]app/Contents/' >/dev/null 2>&1; status=$$?; \
 	if (( status == 0 )); then \
-	  echo 'error: Try Ubuntu or one of its build tools is running; close it before make clean-all' >&2; \
+	  echo 'error: Ubuntu Mac or one of its build tools is running; close it before make clean-all' >&2; \
 	  exit 1; \
 	elif (( status != 1 )); then \
 	  echo 'error: could not safely inspect running processes' >&2; \
@@ -158,7 +158,7 @@ clean-all:
 	@confirmation=''; \
 	if ! { \
 	  printf '%s\n%s' \
-	    'This permanently deletes all Try Ubuntu builds, caches, VM disks, and app state.' \
+	    'This permanently deletes all Ubuntu Mac builds, caches, VM disks, and app state.' \
 	    'Type clean-all to continue: ' >/dev/tty && \
 	  IFS= read -r confirmation </dev/tty; \
 	}; then \
@@ -191,7 +191,7 @@ clean-all:
 	       -o -name 'tryubuntu-audio-route-tests.*' \
 	       -o -name 'tryubuntu-space-estimate-*' \) \
 	    -exec rm -rf -- {} +
-	@echo 'Try Ubuntu deep cleanup complete.'
+	@echo 'Ubuntu Mac deep cleanup complete.'
 
 clean-guest: clean
 	@echo 'make clean-guest is now an alias for make clean.'

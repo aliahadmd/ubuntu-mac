@@ -233,7 +233,7 @@ struct QEMUGPUStorageSpaceEstimateTests {
         let defaultDirectory = try #require(QEMUGPUStorageSpaceEstimate.dataDirectoryDisplayPath(
             environment: [:]
         ))
-        #expect(defaultDirectory == "~/Library/Application Support/Try Omarchy")
+        #expect(defaultDirectory == "~/Library/Application Support/Ubuntu Mac")
 
         let defaultDirectoryURL = try #require(QEMUGPUStorageSpaceEstimate.dataDirectoryURL(
             environment: [:]

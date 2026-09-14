@@ -47,10 +47,10 @@ done
 macos_dir=$(cd "$(dirname "$0")" && pwd)
 repo_dir=$(cd "$macos_dir/.." && pwd -P)
 helper="$macos_dir/.build/release/tryubuntu-vm-helper"
-legacy_app="$repo_dir/dist/Try Ubuntu.app"
-app="$repo_dir/dist/app.noindex/Try Ubuntu.app"
+legacy_app="$repo_dir/dist/Ubuntu Mac.app"
+app="$repo_dir/dist/app.noindex/Ubuntu Mac.app"
 contents="$app/Contents"
-bundled_qemu="$contents/Resources/runtime/bin/Try Ubuntu"
+bundled_qemu="$contents/Resources/runtime/bin/Ubuntu Mac"
 module_cache="$macos_dir/.build/module-cache"
 runtime_source="$macos_dir/.build/qemu-gpu-runtime"
 guest_dir=${guest_dir:-"$repo_dir/dist/guest"}
@@ -234,7 +234,7 @@ codesign --verify --deep --strict --verbose=2 "$app"
 
 echo "[native] Built $app"
 if (( build_dmg )); then
-  dmg="$repo_dir/dist/TryUbuntu.dmg"
+  dmg="$repo_dir/dist/UbuntuMac.dmg"
   rm -f "$dmg"
   package_options=()
   if [[ $sign_identity != - ]]; then

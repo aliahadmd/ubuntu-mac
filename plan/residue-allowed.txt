@@ -13,9 +13,12 @@ try-omarchy-boot-export-v1
 omarchy-qemu-storage-root-v1
 omarchy-qemu-persistent-disk
 omarchy-qemu-boot-kit
-# - Default workspace directory (documented compatibility; not migrated):
+# - Legacy workspace directory name: the storage library migrates it to
+#   "Ubuntu Mac" at launch; the literal remains in the migration code:
 Application Support/Try Omarchy
+"Try Omarchy"
 static let workspaceDirectoryName = "Try Omarchy"
+static let legacyWorkspaceDirectoryName = "Try Omarchy"
 appendingPathComponent("Try Omarchy", isDirectory: true)
 # - Vendored QEMU 9p patch option names (upstreamable API names):
 guest_owner_uid

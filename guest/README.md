@@ -1,4 +1,4 @@
-# Guest — Try Ubuntu factory builder
+# Guest — Ubuntu Mac factory builder
 
 Builds the reproducible ARM64 Ubuntu 26.04.1 LTS factory image inside a
 privileged `linux/arm64` Docker container:

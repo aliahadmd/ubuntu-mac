@@ -132,7 +132,7 @@ enum StorageLocationPolicyError: LocalizedError, Equatable {
         case .invalidWorkspaceMarker(let path):
             "This folder looks like an Ubuntu workspace, but its \"\(StorageLocationPolicy.rootMarkerName)\" file is damaged, so the VM here cannot be opened safely: \(path). Delete that file to reuse the folder as an empty one, or choose a different folder."
         case .volumeUnreadable(let path):
-            "Try Ubuntu could not read the disk that holds \(path)."
+            "Ubuntu Mac could not read the disk that holds \(path)."
         case .notLocalVolume(let volume):
             "\(volume) is a network volume. Ubuntu needs a local APFS disk so it can lock the VM safely."
         case .unsupportedFilesystem(let filesystem, let volume):
@@ -160,9 +160,13 @@ struct StorageLocationResolution: Equatable {
 /// recorded disk without materializing the current app's factory image.
 enum StorageLocationPolicy {
     static let environmentKey = "TRYUBUNTU_QEMU_GPU_STATE_ROOT"
-    /// Kept identical to the shell library's Application Support folder name
-    /// (`qemu-persistent-storage.sh`); existing workspaces keep their home.
-    static let workspaceDirectoryName = "Try Omarchy"
+    /// The default Application Support folder name. The shell library
+    /// migrates the legacy "Try Omarchy" folder to this name at launch; until
+    /// then the legacy path is still read (see legacyWorkspaceDirectoryName).
+    static let workspaceDirectoryName = "Ubuntu Mac"
+    /// VMs provisioned before the rename keep their data here until the
+    /// storage library performs the one-time rename at launch.
+    static let legacyWorkspaceDirectoryName = "Try Omarchy"
     static let rootMarkerName = ".omarchy-qemu-storage"
 
     /// The marker's only valid contents. Kept byte-identical to

@@ -45,6 +45,12 @@ systemctl enable systemd-resolved.service
 
 # Graphical default target; GDM greets the provisioned account.
 ln -sfn /usr/lib/systemd/system/graphical.target /etc/systemd/system/default.target
+
+# Ubuntu orders the display manager after snap seeding, which on first boot
+# holds the desktop hostage to snap downloads over the VM's NAT link. Mask
+# the boot-time wait only: snapd still runs and seeds in the background, so
+# snap apps appear shortly after login instead of delaying the desktop.
+systemctl mask snapd.seeded.service
 [[ -x /usr/sbin/gdm3 ]] || { echo "Missing GDM for the graphical factory" >&2; exit 1; }
 
 # The factory ships the vendor sshd unit for the boot-scoped ssh-access

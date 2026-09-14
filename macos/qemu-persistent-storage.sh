@@ -169,7 +169,7 @@ _qps_assert_source_disk() {
 # `df -P` names the device in its first field and `mount` keys its listing on
 # the same device, so matching on the device avoids parsing mount points. Those
 # routinely contain spaces, both for the default location under "Application
-# Support/Try Ubuntu" and for anything under /Volumes.
+# Support/Ubuntu Mac" and for anything under /Volumes.
 _qps_volume_filesystem() {
   local qps_path=$1
   local qps_device=''
@@ -293,7 +293,19 @@ _qps_prepare_state_root() {
       _qps_fail 'HOME is unavailable; cannot locate Application Support'
       return 1
     }
-    qps_configured_root="$HOME/Library/Application Support/Try Omarchy/VM/v1"
+    # The default workspace home is "Ubuntu Mac". VMs provisioned by earlier
+    # releases lived under "Try Omarchy"; migrate once by renaming the folder
+    # in place (same-volume rename, instant even for large sparse disks).
+    local qps_app_support_new="$HOME/Library/Application Support/Ubuntu Mac"
+    local qps_app_support_legacy="$HOME/Library/Application Support/Try Omarchy"
+    if [[ ! -d $qps_app_support_new && -d $qps_app_support_legacy ]]; then
+      mv "$qps_app_support_legacy" "$qps_app_support_new" || {
+        _qps_fail 'could not migrate the previous VM data folder to Ubuntu Mac'
+        return 1
+      }
+      _qps_error "migrated the VM data folder to Ubuntu Mac"
+    fi
+    qps_configured_root="$qps_app_support_new/VM/v1"
   fi
   _qps_assert_safe_root_path "$qps_configured_root" || return 1
 
@@ -727,7 +739,7 @@ _qps_copy_private_file() {
 
 _qps_boot_abi_for_kernel() {
   # New factory kits are PE32+ EFI-stub images booted through bundled UEFI
-  # firmware; legacy Try Ubuntu kits are raw Images booted directly
+  # firmware; legacy Ubuntu Mac kits are raw Images booted directly
   # (plan/contract.md section 2).
   local qps_kernel=$1
   local qps_magic

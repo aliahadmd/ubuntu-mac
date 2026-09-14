@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve Try Ubuntu. The project has one product target: a
+Thanks for helping improve Ubuntu Mac. The project has one product target: a
 native Apple Silicon macOS app that runs a project-built ARM64 Ubuntu 26.04.1
 LTS virtual machine image.
 

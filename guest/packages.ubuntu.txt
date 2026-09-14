@@ -1,4 +1,4 @@
-# Try Ubuntu factory package set.
+# Ubuntu Mac factory package set.
 # Reviewed like the previous Arch package list: this file is the requested
 # transaction; the built dpkg manifest records the resolved closure.
 

@@ -131,7 +131,7 @@ do {
             application.setActivationPolicy(ApplicationPresentation.prelaunchActivationPolicy)
             ApplicationPresentation.installMainMenu(
                 in: application,
-                applicationName: "Try Ubuntu"
+                applicationName: "Ubuntu Mac"
             )
             let controller = VMApplicationController(
                 launcherURL: launcher,

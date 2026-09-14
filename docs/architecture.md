@@ -1,13 +1,13 @@
 # Architecture
 
-Try Ubuntu packages three pieces into one macOS app:
+Ubuntu Mac packages three pieces into one macOS app:
 
 1. A small Swift/AppKit launcher for the macOS side.
 2. A patched QEMU runtime that creates and runs the virtual machine.
 3. An ARM64 Ubuntu 26.04.1 LTS (GNOME) image built from the pinned Ubuntu archive.
 
 ```text
-Try Ubuntu.app
+Ubuntu Mac.app
 └── Swift/AppKit launcher
     └── QEMU + Apple Hypervisor Framework
         └── project-built ARM64 Linux image

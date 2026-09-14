@@ -1,13 +1,13 @@
-# Try Ubuntu
+# Ubuntu Mac
 
 Run a native Ubuntu desktop as a hardware-accelerated app on an Apple Silicon Mac.
 
-Try Ubuntu packages a project-built ARM64 Ubuntu 26.04.1 LTS (GNOME) image, a QEMU runtime
+Ubuntu Mac packages a project-built ARM64 Ubuntu 26.04.1 LTS (GNOME) image, a QEMU runtime
 using Apple Hypervisor Framework, and a small Swift/AppKit launcher into one macOS app. The
 image is built from the pinned Ubuntu archive (suite `resolute`) plus a reviewed overlay;
 every network input is checksum-verified and mirrors are verified fallbacks.
 
-> This project began as **Try Ubuntu** (the Basecamp Ubuntu desktop in a VM); the guest
+> This project began as **Ubuntu Mac** (the Basecamp Ubuntu desktop in a VM); the guest
 > was replaced with Ubuntu in the 2026 conversion. The Ubuntu line remains available in
 > the repository history and as the v0.3.0 release of the previous line.
 
@@ -26,8 +26,8 @@ every network input is checksum-verified and mirrors are verified fallbacks.
 
 1. Open [Releases](https://github.com/aliahadmd/ubuntu-mac/releases) and download the latest
    signed and notarized `.dmg`.
-2. Open the DMG and drag **Try Ubuntu** to **Applications**.
-3. Launch **Try Ubuntu** from Applications.
+2. Open the DMG and drag **Ubuntu Mac** to **Applications**.
+3. Launch **Ubuntu Mac** from Applications.
 
 Every launch begins at the start menu. While that menu is open, the app behaves like a
 regular Mac application; after the VM starts, the Ubuntu desktop takes over. **Immersive**
@@ -77,7 +77,7 @@ port>` to reach a service running on the Mac.
 ### SSH access
 
 After completing the guest account setup, open **Port forwarding**, choose **Add SSH**, and
-save the prefilled TCP mapping from Mac port `2222` to Ubuntu port `22`. Try Ubuntu then
+save the prefilled TCP mapping from Mac port `2222` to Ubuntu port `22`. Ubuntu Mac then
 requests `sshd` for boots that contain a TCP mapping to guest port 22; it does not change
 guest accounts, SSH server configuration, or authorized keys.
 
@@ -113,7 +113,7 @@ initramfs, and base command line that were paired with that disk. A newer app's 
 factory image is used only to create a new VM, after a confirmed **Factory Reset**, or for
 an ephemeral launch.
 
-VMs created by the previous Try Ubuntu releases keep booting their own preserved kernel
+VMs created by the previous Ubuntu Mac releases keep booting their own preserved kernel
 and initramfs; they are not migrated to Ubuntu. A confirmed Factory Reset (which requires
 typing the app name exactly) creates a fresh Ubuntu VM from the bundled factory.
 
@@ -176,7 +176,7 @@ The architecture and trust boundaries are documented in
 
 ## Project status and support
 
-Try Ubuntu is pre-1.0 and under active development. Ubuntu and bundled dependencies retain
+Ubuntu Mac is pre-1.0 and under active development. Ubuntu and bundled dependencies retain
 their own licenses; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Report ordinary
 bugs through GitHub Issues and suspected vulnerabilities through
 [`SECURITY.md`](SECURITY.md). Original code is licensed under the

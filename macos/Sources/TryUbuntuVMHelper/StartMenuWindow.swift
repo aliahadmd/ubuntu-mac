@@ -1,7 +1,7 @@
 import AppKit
 
 enum ResetConfirmationPolicy {
-    static let requiredText = "Try Ubuntu"
+    static let requiredText = "Ubuntu Mac"
 
     static func allowsReset(_ text: String) -> Bool {
         text == requiredText
@@ -99,7 +99,7 @@ final class ResetConfirmationPrompt {
 @MainActor
 enum StartMenuWindowChrome {
     static func apply(to window: NSWindow) {
-        window.title = "Try Ubuntu"
+        window.title = "Ubuntu Mac"
         // The start menu draws its own heading inside a full-size content view.
         // Keep the native title as the window identity, but do not composite a
         // second copy over that custom heading in the transparent title bar.
@@ -446,7 +446,7 @@ final class StartMenuWindow: NSObject, NSWindowDelegate {
 
         let alert = NSAlert()
         alert.alertStyle = .critical
-        alert.messageText = "Try Ubuntu couldn’t start"
+        alert.messageText = "Ubuntu Mac couldn’t start"
         alert.informativeText = errorMessage
         alert.addButton(withTitle: "OK")
         alert.beginSheetModal(for: window)
@@ -471,7 +471,7 @@ final class StartMenuWindow: NSObject, NSWindowDelegate {
             icon.heightAnchor.constraint(equalToConstant: 62),
         ])
 
-        let title = NSTextField(labelWithString: "Try Ubuntu")
+        let title = NSTextField(labelWithString: "Ubuntu Mac")
         title.font = .systemFont(ofSize: 27, weight: .bold)
 
         let headingStack = NSStackView(views: [icon, title])

@@ -10,7 +10,7 @@ Use the root Makefile for normal development:
 
 ```sh
 make runtime   # macos/.build/qemu-gpu-runtime
-make app       # dist/app.noindex/Try Ubuntu.app
+make app       # dist/app.noindex/Ubuntu Mac.app
 make run
 make package   # signed and notarized dist/TryUbuntu.dmg
 make release   # signed and notarized dist/TryUbuntu.dmg
@@ -75,7 +75,7 @@ old userspace. The launcher validates and atomically stages that boot kit before
 the normal launch. Unsupported storage or boot ABIs, and ambiguous multiple
 legacy disks, still use the user-facing, confirmed Reset Ubuntu flow.
 That destructive flow keeps **Reset** disabled until the user types
-`Try Ubuntu` exactly in a native sheet. Cancelling or dismissing the sheet
+`Ubuntu Mac` exactly in a native sheet. Cancelling or dismissing the sheet
 returns control without invoking the storage reset.
 
 The start menu can move that workspace to any APFS folder the user picks; the

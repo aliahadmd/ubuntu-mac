@@ -217,7 +217,7 @@ struct KernelProcessIdentityTests {
     @Test("accepts the branded app runtime and exact qemu-system basenames")
     func validatesExecutableName() {
         for path in [
-            "/private/runtime/Try Ubuntu",
+            "/private/runtime/Ubuntu Mac",
             "/private/runtime/qemu-system-aarch64",
         ] {
             let valid = KernelProcessIdentity(
@@ -230,8 +230,8 @@ struct KernelProcessIdentityTests {
         }
 
         for path in [
-            "/private/runtime/Try Ubuntu.app",
-            "/private/runtime/not Try Ubuntu",
+            "/private/runtime/Ubuntu Mac.app",
+            "/private/runtime/not Ubuntu Mac",
             "/private/runtime/qemu-system-",
             "/private/runtime/not-qemu-system-aarch64",
             "/private/runtime/qemu-system-aarch64.app",

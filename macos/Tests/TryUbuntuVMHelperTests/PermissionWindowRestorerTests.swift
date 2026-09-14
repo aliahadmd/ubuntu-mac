@@ -148,7 +148,7 @@ struct PermissionWindowRestorerTests {
 
         StartMenuWindowChrome.apply(to: window)
 
-        #expect(window.title == "Try Ubuntu")
+        #expect(window.title == "Ubuntu Mac")
         #expect(window.titleVisibility == .hidden)
         #expect(window.titlebarAppearsTransparent)
         #expect(window.isMovableByWindowBackground)

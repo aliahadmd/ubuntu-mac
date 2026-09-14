@@ -144,6 +144,10 @@ fi
 
 # Both mirrors are recorded in the staged root: apt falls back per fetched
 # file, so the build (and the guest) survive one mirror being unreachable.
+# Debootstrap also generated /etc/apt/sources.list for its own mirror; remove
+# it so apt sees exactly one definition and users never see
+# "configured multiple times" warnings.
+rm -f "$root/etc/apt/sources.list"
 install -d -m 0755 "$root/etc/apt/sources.list.d"
 cat >"$root/etc/apt/sources.list.d/ubuntu.sources" <<EOF
 Types: deb

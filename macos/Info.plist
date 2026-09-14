@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Try Ubuntu</string>
+	<string>Ubuntu Mac</string>
 	<key>CFBundleExecutable</key>
 	<string>tryubuntu-vm-helper</string>
 	<key>CFBundleIconFile</key>
@@ -15,11 +15,11 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Try Ubuntu</string>
+	<string>Ubuntu Mac</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSArchitecturePriority</key>
@@ -31,21 +31,21 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Try Ubuntu uses the Mac camera only while software inside the virtual machine records video.</string>
+	<string>Ubuntu Mac uses the Mac camera only while software inside the virtual machine records video.</string>
 	<key>NSDesktopFolderUsageDescription</key>
-	<string>Try Ubuntu reads and writes this folder only if you choose to share it with Ubuntu.</string>
+	<string>Ubuntu Mac reads and writes this folder only if you choose to share it with Ubuntu.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
-	<string>Try Ubuntu reads and writes this folder only if you choose to share it with Ubuntu.</string>
+	<string>Ubuntu Mac reads and writes this folder only if you choose to share it with Ubuntu.</string>
 	<key>NSDownloadsFolderUsageDescription</key>
-	<string>Try Ubuntu reads and writes this folder only if you choose to share it with Ubuntu.</string>
+	<string>Ubuntu Mac reads and writes this folder only if you choose to share it with Ubuntu.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Try Ubuntu uses the Mac microphone only when software inside the virtual machine records audio.</string>
+	<string>Ubuntu Mac uses the Mac microphone only when software inside the virtual machine records audio.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSRemovableVolumesUsageDescription</key>
-	<string>Try Ubuntu stores its virtual machine on this drive only if you choose to keep it there.</string>
+	<string>Ubuntu Mac stores its virtual machine on this drive only if you choose to keep it there.</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
 </dict>

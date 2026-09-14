@@ -40,7 +40,7 @@ enum VolumeProbeError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .unreadable(let path):
-            "Try Ubuntu could not read the disk that holds \(path)."
+            "Ubuntu Mac could not read the disk that holds \(path)."
         }
     }
 }

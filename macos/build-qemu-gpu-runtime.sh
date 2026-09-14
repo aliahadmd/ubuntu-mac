@@ -6,7 +6,7 @@ usage() {
   cat <<'EOF'
 Usage: macos/build-qemu-gpu-runtime.sh [--archive-dir DIR]
 
-Build the pinned QEMU/VirGL source stack with Try Ubuntu's Cocoa identity,
+Build the pinned QEMU/VirGL source stack with Ubuntu Mac's Cocoa identity,
 dynamic-display, immersive-mode, and pause-ownership patches, then relocate,
 sign, validate, and
 atomically stage it at:
@@ -361,22 +361,22 @@ mkdir -p "$source_dir/subprojects/keycodemapdb" "$source_dir/subprojects/dtc"
 tar -xzf "$keycodemap_archive" -C "$source_dir/subprojects/keycodemapdb" --strip-components=1
 tar -xzf "$dtc_archive" -C "$source_dir/subprojects/dtc" --strip-components=1
 
-verify_file_sha "Try Ubuntu texture-borrowing patch" "$texture_patch" "$texture_patch_sha256"
-verify_file_sha "Try Ubuntu GPU-resolution patch" "$gpu_fix_patch" "$gpu_fix_patch_sha256"
-verify_file_sha "Try Ubuntu Cocoa product-identity patch" \
+verify_file_sha "Ubuntu Mac texture-borrowing patch" "$texture_patch" "$texture_patch_sha256"
+verify_file_sha "Ubuntu Mac GPU-resolution patch" "$gpu_fix_patch" "$gpu_fix_patch_sha256"
+verify_file_sha "Ubuntu Mac Cocoa product-identity patch" \
   "$identity_patch" "$identity_patch_sha256"
-verify_file_sha "Try Ubuntu dynamic-display patch" "$display_patch" "$display_patch_sha256"
-verify_file_sha "Try Ubuntu Cocoa immersive-mode patch" \
+verify_file_sha "Ubuntu Mac dynamic-display patch" "$display_patch" "$display_patch_sha256"
+verify_file_sha "Ubuntu Mac Cocoa immersive-mode patch" \
   "$immersive_patch" "$immersive_patch_sha256"
-verify_file_sha "Try Ubuntu Cocoa full-grab patch" \
+verify_file_sha "Ubuntu Mac Cocoa full-grab patch" \
   "$full_grab_patch" "$full_grab_patch_sha256"
-verify_file_sha "Try Ubuntu Cocoa pause-ownership patch" \
+verify_file_sha "Ubuntu Mac Cocoa pause-ownership patch" \
   "$pause_ownership_patch" "$pause_ownership_patch_sha256"
-verify_file_sha "Try Ubuntu SDL audio-device patch" \
+verify_file_sha "Ubuntu Mac SDL audio-device patch" \
   "$audio_device_patch" "$audio_device_patch_sha256"
-verify_file_sha "Try Ubuntu 9p shared-folder patch" \
+verify_file_sha "Ubuntu Mac 9p shared-folder patch" \
   "$shared_folder_patch" "$shared_folder_patch_sha256"
-verify_file_sha "Try Ubuntu Darwin strchrnul compatibility patch" \
+verify_file_sha "Ubuntu Mac Darwin strchrnul compatibility patch" \
   "$strchrnul_patch" "$strchrnul_patch_sha256"
 
 log "Applying the exact render, identity, display, immersive, pause-ownership, audio, folder, and Darwin compatibility patches"

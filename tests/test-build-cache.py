@@ -103,7 +103,7 @@ class BuildCacheTests(unittest.TestCase):
         self.assertLess(runtime, app)
         self.assertIn("Build output:", dry_run)
         self.assertIn(
-            str(REPOSITORY / "dist/app.noindex/Try Ubuntu.app"), dry_run
+            str(REPOSITORY / "dist/app.noindex/Ubuntu Mac.app"), dry_run
         )
 
         forced = subprocess.run(
@@ -131,17 +131,17 @@ class BuildCacheTests(unittest.TestCase):
         build_script = (REPOSITORY / "macos/build-app.sh").read_text()
         open_script = (REPOSITORY / "macos/open-qemu-gpu.sh").read_text()
         self.assertIn(
-            'app="$repo_dir/dist/app.noindex/Try Ubuntu.app"',
+            'app="$repo_dir/dist/app.noindex/Ubuntu Mac.app"',
             build_script,
         )
         self.assertIn(
-            'legacy_app="$repo_dir/dist/Try Ubuntu.app"',
+            'legacy_app="$repo_dir/dist/Ubuntu Mac.app"',
             build_script,
         )
         self.assertIn('rm -rf -- "$legacy_app"', build_script)
         self.assertNotIn(".metadata_never_index", build_script)
         self.assertIn(
-            'app="$repo_dir/dist/app.noindex/Try Ubuntu.app"',
+            'app="$repo_dir/dist/app.noindex/Ubuntu Mac.app"',
             open_script,
         )
 
@@ -247,10 +247,10 @@ class BuildCacheTests(unittest.TestCase):
     def test_app_validation_requires_packaged_icon(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            app = root / "dist/app.noindex/Try Ubuntu.app"
+            app = root / "dist/app.noindex/Ubuntu Mac.app"
             for relative in (
                 "Contents/MacOS/tryubuntu-vm-helper",
-                "Contents/Resources/runtime/bin/Try Ubuntu",
+                "Contents/Resources/runtime/bin/Ubuntu Mac",
                 "Contents/Resources/guest/rootfs.ext4.zst",
                 "Contents/Resources/guest/launch.plist",
             ):

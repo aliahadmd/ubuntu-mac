@@ -17,7 +17,7 @@ meta, or a core package version), first update `guest/spec.json` per
 
 Outputs are written to:
 
-- `dist/app.noindex/Try Ubuntu.app` (pre-rename layout: `Try Ubuntu.app`)
+- `dist/app.noindex/Ubuntu Mac.app` (pre-rename layout: `Ubuntu Mac.app`)
 - `dist/TryUbuntu.dmg`
 - `dist/guest/`
 

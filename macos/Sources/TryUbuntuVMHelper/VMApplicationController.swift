@@ -348,7 +348,7 @@ final class VMApplicationController: NSObject, NSApplicationDelegate {
             startMenuWindow?.resetDidFinish(errorMessage: nil)
         } else {
             startMenuWindow?.resetDidFinish(
-                errorMessage: "The VM disk could not be reset. Try again, or reinstall the latest Try Ubuntu app."
+                errorMessage: "The VM disk could not be reset. Try again, or reinstall the latest Ubuntu Mac app."
             )
         }
     }
@@ -488,7 +488,7 @@ final class VMApplicationController: NSObject, NSApplicationDelegate {
             "tryubuntu-vm-helper: host sleep control is unavailable: \(detail)\n",
             stderr
         )
-        pendingHostSleepControlFailure = "The virtual machine started, but Try Ubuntu could not enable safe Mac sleep. Please close and reopen the app. (\(detail))"
+        pendingHostSleepControlFailure = "The virtual machine started, but Ubuntu Mac could not enable safe Mac sleep. Please close and reopen the app. (\(detail))"
         lifecycle.requestQuit()
         supervisor.forward(signal: SIGTERM)
     }
@@ -734,9 +734,9 @@ final class VMApplicationController: NSObject, NSApplicationDelegate {
         let alert = NSAlert()
         alert.alertStyle = .critical
         alert.messageText = "Ubuntu is still paused"
-        alert.informativeText = "Try Ubuntu could not reconnect after this Mac woke, so the VM remains paused to protect its state. Try again, or quit the app. (\(error.localizedDescription))"
+        alert.informativeText = "Ubuntu Mac could not reconnect after this Mac woke, so the VM remains paused to protect its state. Try again, or quit the app. (\(error.localizedDescription))"
         alert.addButton(withTitle: "Try Again")
-        alert.addButton(withTitle: "Quit Try Ubuntu")
+        alert.addButton(withTitle: "Quit Ubuntu Mac")
 
         isPresentingBlockingAlert = true
         let response = alert.runModal()
@@ -839,7 +839,7 @@ final class VMApplicationController: NSObject, NSApplicationDelegate {
             ) {
             case .reportFailure:
                 startMenuWindow?.launchDidFail(
-                    errorMessage: "Try Ubuntu could not complete the one-time boot-file pairing. The saved VM was not reset or upgraded. You can safely try again."
+                    errorMessage: "Ubuntu Mac could not complete the one-time boot-file pairing. The saved VM was not reset or upgraded. You can safely try again."
                 )
                 return
             case .requestConfirmation:
@@ -874,7 +874,7 @@ final class VMApplicationController: NSObject, NSApplicationDelegate {
                 startMenuWindow = nil
                 let alert = NSAlert()
                 alert.alertStyle = .critical
-                alert.messageText = "Try Ubuntu couldn’t start"
+                alert.messageText = "Ubuntu Mac couldn’t start"
                 alert.informativeText = "The app’s virtual machine stopped during startup. Reinstall the latest Ubuntu app and try again."
                 alert.addButton(withTitle: "Close")
                 alert.runModal()
