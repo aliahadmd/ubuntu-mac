@@ -508,7 +508,7 @@ storage = {
     "mode": "ephemeral",
     "initialization": "apfs-clone",
     "fallback": "full-copy",
-    "expandedSizeMiB": 102400,
+    "expandedSizeMiB": 35840,
 }
 if (
     runtime.get("kernel") != "vmlinuz-linux"

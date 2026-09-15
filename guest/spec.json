@@ -132,7 +132,7 @@
       "mode": "ephemeral",
       "initialization": "apfs-clone",
       "fallback": "full-copy",
-      "expandedSizeMiB": 102400
+      "expandedSizeMiB": 35840
     },
     "clipboard": {
       "device": "virtserialport",

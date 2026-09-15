@@ -110,7 +110,7 @@ def main() -> None:
         },
         "SSH preset and boot activation are an exact loopback-only runtime contract",
     )
-    check(spec["runtime"]["storage"]["expandedSizeMiB"] == 102400, "working disk expands to 100 GiB")
+    check(spec["runtime"]["storage"]["expandedSizeMiB"] == 35840, "working disk expands to 35 GiB")
     check(set(spec["inputs"]) == {"packages"}, "spec has a minimal input set")
     for path in spec["inputs"].values():
         check((GUEST / path).is_file(), f"spec input exists: {path}")
