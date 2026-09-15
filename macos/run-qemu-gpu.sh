@@ -751,6 +751,14 @@ if (( host_cpu_count < vcpu_count )); then
 fi
 (( vcpu_count >= 4 )) || fail "the ARM guest requires at least four host CPUs"
 
+# Guest memory scales with the host: half of physical RAM, clamped to
+# 4–8 GiB. A fixed 8 GiB allocation on an 8 GiB Mac forces the host into
+# swap thrash the moment the guest starts.
+host_memory_mib=$(( $(sysctl -n hw.memsize) / 1024 / 1024 ))
+guest_memory_mib=$(( host_memory_mib / 2 ))
+(( guest_memory_mib < 4096 )) && guest_memory_mib=4096
+(( guest_memory_mib > 8192 )) && guest_memory_mib=8192
+
 # The launcher publishes one optional Mac folder for the guest. The Swift app
 # canonicalizes and validates the selection first; re-check here so a stray
 # environment value can never export an unsafe tree. Empty means disabled.
@@ -1241,7 +1249,7 @@ qemu_args=(
   # one: Linux otherwise probes the dead device and prints a misleading failure.
   -cpu 'host,pmu=off'
   -smp "$vcpu_count,sockets=1,cores=$vcpu_count,threads=1"
-  -m 8G
+  -m "${guest_memory_mib}M"
   -nodefaults
   # Reboot the guest inside this QEMU process, but let shutdown close the app.
   -action 'reboot=reset,shutdown=poweroff'

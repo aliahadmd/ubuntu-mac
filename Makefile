@@ -63,7 +63,9 @@ test:
 	  -Xswiftc -F/Library/Developer/CommandLineTools/Library/Developer/Frameworks \
 	  -Xlinker -F/Library/Developer/CommandLineTools/Library/Developer/Frameworks \
 	  -Xlinker -rpath -Xlinker /Library/Developer/CommandLineTools/Library/Developer/Frameworks \
-	  -Xlinker -rpath -Xlinker /Library/Developer/CommandLineTools/Library/Developer/usr/lib
+	  -Xlinker -rpath -Xlinker /Library/Developer/CommandLineTools/Library/Developer/usr/lib \
+	  -Xswiftc -load-plugin-library \
+	  -Xswiftc /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib
 	@$(ROOT)/macos/Tests/qemu-port-forwarding.test.sh
 	@$(ROOT)/macos/Tests/run-qemu-ssh-contract.test.sh
 	@$(ROOT)/macos/Tests/qemu-power-actions.test.sh
