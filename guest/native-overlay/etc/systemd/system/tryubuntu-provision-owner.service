@@ -10,6 +10,7 @@ StandardInput=tty
 StandardOutput=tty
 StandardError=tty
 TTYPath=/dev/tty1
+Environment=TERM=linux
 TTYReset=yes
 TTYVHangup=yes
 ExecStart=/usr/local/bin/tryubuntu-provision-owner
