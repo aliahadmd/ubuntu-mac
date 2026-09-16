@@ -1,160 +1,121 @@
 # Ubuntu Mac
 
-Run a native Ubuntu desktop as a hardware-accelerated app on an Apple Silicon Mac.
+Run a full **Ubuntu 26.04.1 LTS** desktop (GNOME, arm64) as a native,
+hardware-accelerated app on an Apple Silicon Mac — no dual boot, no separate
+VM tooling. One app bundles a project-built Ubuntu factory image, a patched
+QEMU 11.1.1 runtime on Apple's Hypervisor.framework, and a small
+Swift/AppKit launcher.
 
-Ubuntu Mac packages a project-built ARM64 Ubuntu 26.04.1 LTS (GNOME) image, a QEMU runtime
-using Apple Hypervisor Framework, and a small Swift/AppKit launcher into one macOS app. The
-image is built from the pinned Ubuntu archive (suite `resolute`) plus a reviewed overlay;
-every network input is checksum-verified and mirrors are verified fallbacks.
-
-> This project began as **Ubuntu Mac** (the Basecamp Ubuntu desktop in a VM); the guest
-> was replaced with Ubuntu in the 2026 conversion. The Ubuntu line remains available in
-> the repository history and as the v0.3.0 release of the previous line.
+```text
+Ubuntu Mac.app
+└── Swift/AppKit launcher
+    └── QEMU + Apple Hypervisor Framework (HVF, GICv3)
+        └── Ubuntu 26.04.1 LTS — GNOME on Wayland
+            └── VirGL → ANGLE → Metal acceleration
+```
 
 ## Highlights
 
-- Hardware-accelerated ARM64 virtualization and VirGL graphics
-- Resizable native window with automatic guest resolution and HiDPI scale updates
-- Mac audio input/output selection inside Ubuntu, with live routing and system-default fallback
-- FaceTime HD and other Mac cameras exposed to Ubuntu as an on-demand 720p webcam
-- Two-way clipboard sharing for text and PNG images between macOS and Ubuntu
-- One optional shared Mac folder, available inside Ubuntu under the same name
-- Loopback-only TCP and UDP port forwarding from the Mac into Ubuntu
-- Boot-scoped opt-in SSH access (host port 2222 to guest port 22 by default)
+- Hardware-accelerated ARM64 virtualization with real GPU graphics
+  (guest VirGL → ANGLE → Metal) in a resizable native window, with automatic
+  guest resolution and HiDPI scaling
+- **Adaptive memory**: the VM takes half of your Mac's RAM, clamped to 4–8 GB
+- **35 GB sparse disk** that grows only as Ubuntu writes data
+- Two-way **clipboard** sharing (text and images) with the Mac
+- The Mac's **camera** appears in Ubuntu as an on-demand `/dev/video42`
+  webcam — the camera light is on only while Ubuntu is actually using it
+- Mac **audio** input/output selection inside Ubuntu, with live routing
+- One optional **shared Mac folder**, mounted in Ubuntu under the same name
+- Loopback-only **port forwarding**, plus opt-in **SSH** access (port 2222)
+- Live, visible boot console; one-time in-VM account setup
 
 ## Quick start
 
-1. Open [Releases](https://github.com/aliahadmd/ubuntu-mac/releases) and download the latest
-   signed and notarized `.dmg`.
-2. Open the DMG and drag **Ubuntu Mac** to **Applications**.
-3. Launch **Ubuntu Mac** from Applications.
+1. Download the latest `.dmg` from
+   [Releases](https://github.com/aliahadmd/ubuntu-mac/releases) and drag
+   **Ubuntu Mac** to **Applications**.
+2. Launch it. The build is ad-hoc signed, so macOS may warn on first launch —
+   right-click the app and choose **Open**, or run:
+   `xattr -cr "/Applications/Ubuntu Mac.app"`
+3. Click **Launch Ubuntu**. On first boot, a console screen asks you to create
+   your Linux account (one time), then the GNOME desktop starts.
 
-Every launch begins at the start menu. While that menu is open, the app behaves like a
-regular Mac application; after the VM starts, the Ubuntu desktop takes over. **Immersive**
-is on by default (Full Screen with the Mac menu bar and Dock hidden); turn it off for a
-resizable window. The first launch prepares the VM disk and then shows the guest's
-console-based account setup; after creating your Linux account, the GNOME desktop starts.
+Every launch begins at the start menu. While that menu is open the app
+behaves like a normal Mac application; once the VM starts, Ubuntu takes over
+the window. **Immersive** mode (default) hides the Mac menu bar and Dock;
+turn it off for a windowed desktop. Rebooting inside Ubuntu reboots the VM in
+place; shutting down Ubuntu closes the app.
 
-Restarting from inside Ubuntu reboots the VM in the same app. Shutting down Ubuntu closes
-the app.
+## Sharing with Ubuntu
 
-## Camera sharing
+- **Shared folder** — pick a Mac folder on the start menu (**Choose…**) and it
+  is linked into the Ubuntu home under the same name (`~/Work` on the Mac
+  appears as `~/Work` in Ubuntu) with full read/write access. This is the
+  recommended place for anything bulky, since it never consumes VM disk.
+- **Clipboard** — copy and paste text and images in both directions as soon
+  as you sign in; nothing transfers until something is copied.
+- **Camera** — choose **Allow…** for camera access; Ubuntu sees a standard
+  webcam named **Mac Camera** at `/dev/video42`, captured on demand only.
+- **Audio** — pick any Mac output/input device from inside Ubuntu; switching
+  applies live, and unused devices are released back to macOS.
 
-Choose **Allow…** next to **Camera access** on the start menu to make the Mac's FaceTime HD
-camera available in Ubuntu as **Mac Camera**. The bridge publishes a standard Linux V4L2
-camera at `/dev/video42`, so browser calls and Linux camera apps can use it without special
-configuration. Capture is on demand: the Mac camera and its indicator turn on only while an
-Ubuntu application is actively using the virtual camera. Denying camera permission does not
-prevent Ubuntu from launching.
+## Ports and SSH
 
-## Clipboard sharing
+Use **Configure…** next to **Port forwarding** to map a Mac localhost port to
+a port in Ubuntu (TCP or UDP). Mappings bind only to `127.0.0.1`, so other
+devices on your network cannot reach them; the service inside Ubuntu must
+listen on `0.0.0.0` or its network interface. To reach a Mac service from
+Ubuntu, connect to `10.0.2.2:<port>` — no mapping needed.
 
-Copy and paste work in both directions once you sign in to Ubuntu: text and PNG images
-copied on the Mac appear in the Ubuntu clipboard, and content copied in Ubuntu lands on the
-Mac pasteboard. Nothing is transferred until something is copied.
-
-## Sharing a folder with the Mac
-
-Folder sharing is off until you pick a folder. Use **Choose…** next to **Shared folder** on
-the start menu to select one Mac folder; Ubuntu links it into its home under the same name
-(`~/Work` on the Mac becomes `~/Work` in Ubuntu) with full read and write access, so choose
-a folder you intend Linux software to modify. The whole home folder, `~/Library`, and
-system directories cannot be shared. **Turn Off** keeps the choice but stops exporting it
-on the next launch. The share belongs to the first Ubuntu account created during
-provisioning.
-
-## Forwarding ports to Ubuntu
-
-Use **Configure…** next to **Port forwarding** on the start menu to map a Mac localhost
-port to a service port in Ubuntu. Each mapping can use TCP or UDP; the same Mac port may be
-used once for each protocol. Forwarded ports bind only to `127.0.0.1`, so other devices on
-the network cannot connect to them. The service inside Ubuntu must listen on `0.0.0.0` or
-the guest network interface, not only on the guest's own localhost.
-
-The reverse direction does not need a mapping. From Ubuntu, connect to `10.0.2.2:<Mac
-port>` to reach a service running on the Mac.
-
-### SSH access
-
-After completing the guest account setup, open **Port forwarding**, choose **Add SSH**, and
-save the prefilled TCP mapping from Mac port `2222` to Ubuntu port `22`. Ubuntu Mac then
-requests `sshd` for boots that contain a TCP mapping to guest port 22; it does not change
-guest accounts, SSH server configuration, or authorized keys.
+**Add SSH** inserts the preset mapping (Mac `2222` → Ubuntu `22`). Ubuntu Mac
+then starts `sshd` for boots that carry a TCP mapping to guest port 22:
 
 ```sh
 ssh -p 2222 <guest-user>@127.0.0.1
 ```
 
-Factory Reset creates a new guest host key, and every ephemeral VM has its own disposable
-host key. If OpenSSH reports that the key for the reused endpoint changed, remove only that
-endpoint's old entry:
-
-```sh
-ssh-keygen -R '[127.0.0.1]:2222'
-```
-
-Loopback binding prevents devices on Wi-Fi, Ethernet, or the wider LAN from connecting. It
-does not isolate the listener from other users or processes on the same Mac; guest SSH
-authentication is still required.
+After a Factory Reset the guest host key changes; remove the stale entry with
+`ssh-keygen -R '[127.0.0.1]:2222'`. Loopback binding keeps the listener off
+your network, but other local users on the Mac can still attempt login.
 
 ## Requirements
 
-- Apple Silicon Mac (`arm64`)
-- macOS 15 or newer
-- At least 8 GB free initially
+- Apple Silicon Mac (M1 or newer), macOS 15 or newer
+- 16 GB RAM recommended (8 GB Macs get a 4 GB VM)
+- ~8 GB of free disk to start; the disk is sparse and grows with use
 
-## Data and updates
+## Your data
 
-Normal launches keep one persistent VM under
-`~/Library/Application Support/Try Omarchy/VM/v1` (the storage path predates the Ubuntu
-rename and is retained for compatibility). Removing or updating the app does not remove or
-replace this data. An existing VM keeps both its writable disk and the exact kernel,
-initramfs, and base command line that were paired with that disk. A newer app's bundled
-factory image is used only to create a new VM, after a confirmed **Factory Reset**, or for
-an ephemeral launch.
+The persistent VM lives in `~/Library/Application Support/Ubuntu Mac/VM/v1`.
+Installing a new version never touches it: an existing VM keeps its disk and
+its exact boot files, so updates are safe and instant. VMs provisioned before
+the rename are migrated from the older `Try Omarchy` folder automatically at
+first launch. Ubuntu packages update normally with `apt` inside the VM; a
+**Factory Reset** (typing the app name to confirm) discards the VM and
+creates a fresh one from the bundled factory.
 
-VMs created by the previous Ubuntu Mac releases keep booting their own preserved kernel
-and initramfs; they are not migrated to Ubuntu. A confirmed Factory Reset (which requires
-typing the app name exactly) creates a fresh Ubuntu VM from the bundled factory.
+**VM Location** — **Change…** on the start menu moves *new* VMs to any empty
+folder, including on an external APFS drive. Changing the location never
+moves an existing VM.
 
-The guest's Ubuntu packages can be updated inside the VM with apt. The factory pins the
-kernel and a reviewed core package set (recorded in `guest/spec.json` and the dpkg
-manifest); a reset is the way to move an existing VM to a new factory image wholesale.
+## Building from source
 
-### Choosing where the VM lives
-
-**Change…** on the start menu's **VM Location** row moves new VMs to any folder you pick,
-including one on an external drive. The folder must be **empty** (or one the app already
-used) and the drive must be **APFS**; the disk grows sparsely, which only APFS supports
-reliably here. Changing the location never moves an existing VM.
-
-## Development requirements
-
-- Xcode command-line tools with Swift 6
-- Python 3
-- `pkg-config` (Homebrew is the simplest way to install it)
-- A running Docker-compatible engine that supports privileged `linux/arm64` containers
-- Roughly 20 GB free for guest, runtime, caches, and assembled output
-- A network that can reach at least one of: `ports.ubuntu.com`,
-  `mirrors.tuna.tsinghua.edu.cn`, plus the QEMU build inputs (see
-  `plan/contract.md` for the verified mirror map and fallbacks)
-
-`make doctor` performs the basic preflight. `make build` assembles the guest in privileged
-ARM64 Docker, builds QEMU 11.1.1 for macOS 15.0 with VirGL/ANGLE graphics, compiles the
-Swift launcher, and stages everything into `dist/app.noindex/`.
-
-## Build and run
+Requirements: Xcode command-line tools (Swift 6), Python 3, `pkg-config`,
+and a running Docker engine with privileged `linux/arm64` support, plus
+~20 GB free for build outputs. Downloads are checksum-pinned with verified
+mirror fallbacks (see `plan/contract.md`).
 
 ```sh
-make build run
+brew install pkg-config
+make build run     # assemble guest + QEMU runtime + app, then launch
+make test          # full contract and native test suite
+make clean         # remove build outputs and caches
 ```
 
-Later builds hash the effective inputs and validate the existing outputs, then rebuild only
-the components that changed. `make test` runs the complete contract and native test suite;
-`make help` lists component builds, persistent-storage reset, ephemeral mode, and cleanup.
-
-For a complete local reset, first quit the app and then run `make clean-all` (interactive
-confirmation required; it deletes persistent VM data).
+Component builds are content-hashed: unchanged inputs are skipped, outputs
+are re-validated on every run, and `FORCE=1` rebuilds everything. Releases
+are packaged with `make release` (requires a Developer ID certificate and a
+notarytool profile for signing and notarization).
 
 ## Repository layout
 
@@ -162,24 +123,24 @@ confirmation required; it deletes persistent VM data).
 .
 ├── Makefile                 public build interface
 ├── macos/                   Swift launcher and QEMU/HVF runtime builder
-├── guest/                   reproducible Ubuntu ARM64 factory-image builder
-├── plan/                    conversion plan series and verified contract
+├── guest/                   reproducible Ubuntu arm64 factory-image builder
+├── plan/                    design record: conversion plan and verified contract
 ├── docs/                    architecture and release documentation
 ├── dist/                    generated output (ignored)
-└── CONTRIBUTING.md, SECURITY.md, THIRD_PARTY_NOTICES.md, LICENSE
+├── CONTRIBUTING.md          contribution guide
+├── SECURITY.md              private vulnerability reporting
+├── THIRD_PARTY_NOTICES.md   third-party license notices
+└── LICENSE                  MIT
 ```
 
-The architecture and trust boundaries are documented in
-[`docs/architecture.md`](docs/architecture.md); the conversion contract in
-[`plan/contract.md`](plan/contract.md). Contributors should start with
-[`CONTRIBUTING.md`](CONTRIBUTING.md).
+Architecture and trust boundaries: [`docs/architecture.md`](docs/architecture.md).
+Verified build contract and network fallbacks: [`plan/contract.md`](plan/contract.md).
 
-## Project status and support
+## License and credits
 
-Ubuntu Mac is pre-1.0 and under active development. Ubuntu and bundled dependencies retain
-their own licenses; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Report ordinary
-bugs through GitHub Issues and suspected vulnerabilities through
-[`SECURITY.md`](SECURITY.md). Original code is licensed under the
-[MIT License](LICENSE).
+Original code is licensed under the [MIT License](LICENSE). Ubuntu and all
+bundled dependencies keep their own licenses — see
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Not affiliated with
+Canonical or the Ubuntu project.
 
-by [@aliahadmd1](https://x.com/aliahadmd1/)
+by **[@aliahadmd1](https://x.com/aliahadmd1/)**
