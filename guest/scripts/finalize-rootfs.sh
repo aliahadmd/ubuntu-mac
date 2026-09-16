@@ -46,6 +46,15 @@ systemctl enable systemd-resolved.service
 # Graphical default target; GDM greets the provisioned account.
 ln -sfn /usr/lib/systemd/system/graphical.target /etc/systemd/system/default.target
 
+# Ubuntu's sssd-common dependency ships pre-enabled socket units whose
+# sssd service is absent from this VM, producing six [DEPEND] failures on
+# every boot. Nothing here uses enterprise login: mask the sockets.
+for socket in \
+  sssd-nss.socket sssd-autofs.socket sssd-pac.socket \
+  sssd-pam.socket sssd-ssh.socket sssd-sudo.socket; do
+  systemctl mask "$socket" 2>/dev/null || true
+done
+
 # Ubuntu orders the display manager after snap seeding, which on first boot
 # holds the desktop hostage to snap downloads over the VM's NAT link. Mask
 # the boot-time wait only: snapd still runs and seeds in the background, so
