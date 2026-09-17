@@ -7,8 +7,17 @@ dev.tryomarchy.clipboard virtserialport:
     {"type": "clipboard", "format": "<mime>", "data": "<base64>"}
 
 The host answers {"type": "sync"} with its current pasteboard. Text and PNG
-images are supported. wl-clipboard's data-control protocol lets this agent
-observe and replace the Hyprland selection without holding keyboard focus.
+images are supported.
+
+Observing the selection differs by compositor. wlroots compositors
+(Hyprland) implement zwlr_data_control_unstable_v1, so wl-paste --watch
+notifies this agent without keyboard focus. GNOME's Mutter does not
+implement that protocol, and the core wl_data_device protocol only
+delivers selection offers to the keyboard-focused client — a background
+watcher never qualifies. GNOME therefore uses the XWayland mirror:
+Mutter syncs the Wayland clipboard to the X server, where this agent
+polls xclip and detects changes without holding focus. Both watchers run;
+a shared content fingerprint keeps them from sending twice.
 """
 
 from __future__ import annotations
@@ -38,6 +47,13 @@ MAX_LINE_BYTES = MAX_PAYLOAD_BYTES * 4 // 3 + 4096
 # no longer protects anything and must not swallow a genuine repeat.
 ECHO_WINDOW_SECONDS = 2.0
 TEXT_TYPES = ("text/plain;charset=utf-8", "text/plain", "UTF8_STRING", "TEXT", "STRING")
+# GNOME has no data-control protocol, so the Wayland watcher is silent
+# there; the XWayland mirror (Mutter syncs the Wayland clipboard to the X
+# server) is polled instead. One xclip spawn per interval is cheap next to
+# what the GNOME session itself costs.
+X11_POLL_INTERVAL_SECONDS = 1.0
+X11_DISPLAY_PROBE_INTERVAL_SECONDS = 10.0
+X11_READ_TIMEOUT_SECONDS = 3
 
 
 def log(message: str) -> None:
@@ -258,6 +274,111 @@ def parse_watch_line(line: bytes) -> tuple[str, bytes] | None:
     return decoded_mime, payload
 
 
+
+
+def x11_display_candidates() -> list[str]:
+    """X displays to try, preferred session DISPLAY first."""
+    candidates: list[str] = []
+    env_display = os.environ.get("DISPLAY")
+    if env_display:
+        candidates.append(env_display)
+    x11_dir = Path("/tmp/.X11-unix")
+    if x11_dir.is_dir():
+        for socket in sorted(x11_dir.glob("X*"), key=lambda s: s.name):
+            candidates.append(":" + socket.name[1:])
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for candidate in candidates:
+        if candidate and candidate not in seen:
+            seen.add(candidate)
+            ordered.append(candidate)
+    return ordered
+
+
+def x11_read_clipboard(
+    display: str, runner: Any = subprocess.run
+) -> tuple[str, bytes] | None:
+    """Read the XWayland clipboard as (mime, payload), or None."""
+    environment = dict(os.environ, DISPLAY=display)
+    text = runner(
+        ["xclip", "-selection", "clipboard", "-o"],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        env=environment,
+        timeout=X11_READ_TIMEOUT_SECONDS,
+    )
+    if text.returncode == 0 and text.stdout:
+        return TEXT_FORMAT, text.stdout
+    image = runner(
+        ["xclip", "-selection", "clipboard", "-o", "-t", "image/png"],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        env=environment,
+        timeout=X11_READ_TIMEOUT_SECONDS,
+    )
+    if image.returncode == 0 and image.stdout:
+        return PNG_FORMAT, image.stdout
+    return None
+
+
+class X11ClipboardPoller:
+    """Detects X clipboard changes that the Wayland watcher cannot see.
+
+    The poller keeps its own last-seen fingerprint: a poll only forwards a
+    change, never steady state, so running it alongside the Wayland watcher
+    cannot double-send, and unchanged content is never re-sent.
+    """
+
+    def __init__(self, clock: Any = time.monotonic, runner: Any = subprocess.run) -> None:
+        self.clock = clock
+        self.runner = runner
+        self.display: str | None = None
+        self.next_display_probe = 0.0
+        self.next_poll = 0.0
+        self.last_seen: str | None = None
+
+    def poll(self, now: float, candidates: list[str]) -> tuple[str, bytes] | None:
+        """Return (mime, payload) when the X clipboard carries new content."""
+        if now < self.next_poll:
+            return None
+        self.next_poll = now + X11_POLL_INTERVAL_SECONDS
+        if self.display is None:
+            if now < self.next_display_probe:
+                return None
+            self.next_display_probe = now + X11_DISPLAY_PROBE_INTERVAL_SECONDS
+            for candidate in candidates:
+                # A display answers when xclip reaches the clipboard at all;
+                # an empty clipboard still proves the X server connection.
+                probe = self.runner(
+                    ["xclip", "-selection", "clipboard", "-o"],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    env=dict(os.environ, DISPLAY=candidate),
+                    text=True,
+                    timeout=X11_READ_TIMEOUT_SECONDS,
+                )
+                combined = (probe.stdout or "") + (probe.stderr or "")
+                if "Can't open display" not in combined:
+                    self.display = candidate
+                    break
+            if self.display is None:
+                return None
+        selection = x11_read_clipboard(self.display, self.runner)
+        if selection is None:
+            return None
+        mime, payload = selection
+        if not payload or len(payload) > MAX_PAYLOAD_BYTES:
+            return None
+        key = fingerprint(mime, payload)
+        if key == self.last_seen:
+            return None
+        self.last_seen = key
+        return mime, payload
+
+
 def main() -> int:
     if len(sys.argv) > 1 and sys.argv[1] == "--emit":
         return emit_selection()
@@ -278,6 +399,7 @@ def main() -> int:
             offset += os.write(descriptor, payload[offset:])
 
     sync = ClipboardSync(send, wl_copy)
+    x11_poller = X11ClipboardPoller()
     watcher = subprocess.Popen(
         ["wl-paste", "--watch", os.path.realpath(sys.argv[0]), "--emit"],
         stdin=subprocess.DEVNULL,
@@ -328,6 +450,10 @@ def main() -> int:
                         parsed = parse_watch_line(line)
                         if parsed is not None:
                             sync.guest_changed(*parsed)
+            now = time.monotonic()
+            polled = x11_poller.poll(now, x11_display_candidates())
+            if polled is not None:
+                sync.guest_changed(*polled)
     finally:
         if watcher.poll() is None:
             watcher.terminate()

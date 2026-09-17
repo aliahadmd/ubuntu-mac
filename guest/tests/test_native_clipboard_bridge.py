@@ -7,9 +7,11 @@ import base64
 import importlib.util
 from importlib.machinery import SourceFileLoader
 import json
+import tempfile
 import os
 from pathlib import Path
 import unittest
+import unittest.mock
 
 
 BRIDGE_PATH = (
@@ -177,6 +179,155 @@ class BoundedReadTests(unittest.TestCase):
             os.close(reader)
             os.close(writer)
 
+
+
+
+class ScriptedRunner:
+    """Answers xclip invocations from a handler: (code, stdout, stderr)."""
+
+    def __init__(self, handler) -> None:
+        self.handler = handler
+        self.calls: list[tuple[str, str]] = []
+
+    def __call__(self, command, **kwargs):
+        display = (kwargs.get("env") or {}).get("DISPLAY", "")
+        self.calls.append((display, " ".join(command)))
+        code, out, err = self.handler(command, display)
+        if not kwargs.get("text"):
+            if isinstance(out, str):
+                out = out.encode()
+            if isinstance(err, str):
+                err = err.encode()
+        result = unittest.mock.MagicMock()
+        result.returncode = code
+        result.stdout = out
+        result.stderr = err
+        return result
+
+
+class X11PollerTests(unittest.TestCase):
+    def test_poll_detects_new_text_content(self) -> None:
+        clock = [100.0]
+        runner = ScriptedRunner(lambda cmd, display: (0, "hello world", ""))
+        poller = bridge.X11ClipboardPoller(clock=lambda: clock[0], runner=runner)
+        found = poller.poll(clock[0], [":0"])
+        self.assertIsNotNone(found)
+        mime, payload = found
+        self.assertEqual(mime, bridge.TEXT_FORMAT)
+        self.assertEqual(payload, b"hello world")
+
+    def test_poll_is_quiet_while_content_is_unchanged(self) -> None:
+        clock = [100.0]
+        runner = ScriptedRunner(lambda cmd, display: (0, "hello world", ""))
+        poller = bridge.X11ClipboardPoller(clock=lambda: clock[0], runner=runner)
+        self.assertIsNotNone(poller.poll(clock[0], [":0"]))
+        clock[0] += bridge.X11_POLL_INTERVAL_SECONDS + 1
+        self.assertIsNone(poller.poll(clock[0], [":0"]))
+
+    def test_poll_respects_its_interval(self) -> None:
+        clock = [100.0]
+        runner = ScriptedRunner(lambda cmd, display: (0, "steady", ""))
+        poller = bridge.X11ClipboardPoller(clock=lambda: clock[0], runner=runner)
+        # the first poll probes the display, reads, and forwards new content
+        found = poller.poll(clock[0], [":0"])
+        self.assertIsNotNone(found)
+        self.assertEqual(len(runner.calls), 2)
+        # inside the poll interval nothing happens, unchanged or not
+        self.assertIsNone(poller.poll(clock[0] + 0.5, [":0"]))
+        self.assertEqual(len(runner.calls), 2)
+        clock[0] += bridge.X11_POLL_INTERVAL_SECONDS + 1
+        self.assertIsNone(poller.poll(clock[0], [":0"]))
+        self.assertEqual(len(runner.calls), 3)
+
+    def test_png_selection_is_detected_when_text_read_fails(self) -> None:
+        clock = [100.0]
+
+        def handler(command, display):
+            if "-t" in command:
+                return 0, b"\x89PNG fake", ""
+            return 1, "", ""
+
+        poller = bridge.X11ClipboardPoller(clock=lambda: clock[0], runner=ScriptedRunner(handler))
+        found = poller.poll(clock[0], [":0"])
+        self.assertIsNotNone(found)
+        self.assertEqual(found[0], bridge.PNG_FORMAT)
+
+    def test_probe_skips_wrong_display_and_remembers_the_working_one(self) -> None:
+        clock = [100.0]
+
+        def handler(command, display):
+            if display == ":0":
+                return 1, "", "Error: Can't open display: :0"
+            return 0, "found", ""
+
+        runner = ScriptedRunner(handler)
+        poller = bridge.X11ClipboardPoller(clock=lambda: clock[0], runner=runner)
+        found = poller.poll(clock[0], [":0", ":1"])
+        self.assertIsNotNone(found)
+        working = [display for display, _ in runner.calls]
+        self.assertEqual(working.count(":0"), 1)
+        clock[0] += bridge.X11_POLL_INTERVAL_SECONDS + 1
+        poller.poll(clock[0], [":0", ":1"])
+        later = [display for display, _ in runner.calls[len(working):]]
+        self.assertTrue(all(display != ":0" for display in later))
+
+    def test_display_discovery_lists_env_and_sockets(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            unix_dir = Path(temporary) / ".X11-unix"
+            unix_dir.mkdir()
+            (unix_dir / "X0").touch()
+            (unix_dir / "X1").touch()
+            original_path = bridge.Path
+
+            def patched_path(base, *args, **kwargs):
+                if str(base) == "/tmp/.X11-unix":
+                    return original_path(unix_dir, *args, **kwargs)
+                return original_path(base, *args, **kwargs)
+
+            saved_display = os.environ.get("DISPLAY")
+            os.environ["DISPLAY"] = ":3"
+            bridge.Path = patched_path
+            try:
+                candidates = bridge.x11_display_candidates()
+            finally:
+                bridge.Path = original_path
+                if saved_display is None:
+                    os.environ.pop("DISPLAY", None)
+                else:
+                    os.environ["DISPLAY"] = saved_display
+        self.assertEqual(candidates[0], ":3")
+        self.assertIn(":0", candidates)
+        self.assertIn(":1", candidates)
+
+
+class X11BridgeIntegrationTests(unittest.TestCase):
+    def test_x11_change_reaches_the_host_through_the_sync_state(self) -> None:
+        clock = [100.0]
+        recorder = Recorder()
+        sync = bridge.ClipboardSync(recorder.send, recorder.copy, clock=lambda: clock[0])
+        runner = ScriptedRunner(lambda cmd, display: (0, "from ubuntu", ""))
+        poller = bridge.X11ClipboardPoller(clock=lambda: clock[0], runner=runner)
+        found = poller.poll(clock[0], [":0"])
+        self.assertIsNotNone(found)
+        self.assertTrue(sync.guest_changed(*found))
+        self.assertEqual(
+            recorder.sent[-1],
+            bridge.encode_message(bridge.TEXT_FORMAT, b"from ubuntu"),
+        )
+
+    def test_x11_mirror_of_a_mac_copy_never_reaches_the_host_twice(self) -> None:
+        clock = [100.0]
+        recorder = Recorder()
+        sync = bridge.ClipboardSync(recorder.send, recorder.copy, clock=lambda: clock[0])
+        # The Mac copies A; the guest applies it, and Mutter mirrors A onto the
+        # X clipboard where the poller will find it.
+        self.assertTrue(sync.host_changed(bridge.TEXT_FORMAT, b"from mac"))
+        runner = ScriptedRunner(lambda cmd, display: (0, "from mac", ""))
+        poller = bridge.X11ClipboardPoller(clock=lambda: clock[0], runner=runner)
+        found = poller.poll(clock[0] + 5, [":0"])
+        self.assertIsNotNone(found)
+        self.assertFalse(sync.guest_changed(*found))
+        self.assertEqual(len(recorder.sent), 0)
 
 if __name__ == "__main__":
     unittest.main()

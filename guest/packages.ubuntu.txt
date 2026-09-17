@@ -23,6 +23,7 @@ network-manager
 # Guest integration dependencies
 python3
 wl-clipboard
+xclip
 pipewire
 pipewire-pulse
 wireplumber
