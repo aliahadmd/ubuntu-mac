@@ -39,7 +39,7 @@
       "initramfs-tools": "0.151ubuntu1",
       "linux-image-generic": "7.0.0-31.31",
       "network-manager": "1.54.3-2ubuntu3",
-      "pipewire": "1.6.2-1ubuntu1.1",
+      "pipewire": "1.6.2-1ubuntu1.2",
       "v4l2loopback-dkms": "0.15.3-1ubuntu2",
       "wireplumber": "0.5.13-1ubuntu1",
       "wl-clipboard": "2.2.1-2build1"
